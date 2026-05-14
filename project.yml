@@ -1,0 +1,26 @@
+name: TingeePay
+options:
+  bundleIdPrefix: vn.tingee
+targets:
+  TingeePay:
+    type: application
+    platform: iOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: TingeePay/App
+      - path: TingeePay/Resource
+    info:
+      path: TingeePay/Info.plist
+      properties:
+        UILaunchStoryboardName: LaunchScreen
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+    dependencies:
+      - package: TingeePaySDK
+packages:
+  TingeePaySDK:
+    path: .
