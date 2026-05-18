@@ -1,27 +1,15 @@
-# TingeePay SDK for iOS
+# Tingee SDK for iOS
 
-TingeePay SDK là thư viện chính thức giúp tích hợp cổng thanh toán Tingee vào ứng dụng iOS một cách nhanh chóng, an toàn và mang lại trải nghiệm Native tốt nhất cho người dùng.
+> SDK chính thức tích hợp cổng thanh toán **Tingee** cho iOS
 
-SDK hỗ trợ:
-- Mở trang thanh toán (Quick Checkout) nhanh chóng.
-- Hỗ trợ giao diện `fullScreen` hoặc `bottomSheet` (kéo thả mượt mà trên iOS 15+).
-- Tự động bắt Deep Link/Universal Link để chuyển hướng sang các ứng dụng Ngân hàng/Ví điện tử.
-- Xử lý mượt mà sự kiện tải mã QR Code về Thư viện ảnh (Camera Roll).
-- Giao tiếp thời gian thực với Web Bridge để nhận kết quả thanh toán ngay lập tức.
+[![Swift Package Manager](https://img.shields.io/badge/SPM-compatible-orange)](https://swift.org/package-manager/)
+[![iOS](https://img.shields.io/badge/iOS-14.0%2B-blue)](https://developer.apple.com/ios/)
 
 ---
 
-## 1. Yêu cầu hệ thống (Requirements)
+## Cài đặt
 
-- iOS 14.0 trở lên.
-- Swift 5.0+.
-- Xcode 14.0+.
-
----
-
-## 2. Cài đặt (Installation)
-
-TingeePay SDK được phân phối qua **Swift Package Manager (SPM)**.
+### Swift Package Manager (SPM)
 
 1. Mở dự án của bạn trên Xcode.
 2. Chọn **File** > **Add Packages...** (hoặc **Add Package Dependencies...**).
@@ -30,14 +18,11 @@ TingeePay SDK được phân phối qua **Swift Package Manager (SPM)**.
 
 ---
 
-## 3. Cấu hình dự án (Configuration)
+## Cấu hình
 
 Để SDK hoạt động trơn tru (đặc biệt là tính năng Tải mã QR), bạn **bắt buộc** phải cấu hình file `Info.plist` của ứng dụng.
 
-Mở `Info.plist` dưới dạng Source Code và thêm cấu hình sau:
-
-### Xin quyền lưu mã QR vào Thư viện ảnh
-Khi người dùng bấm "Tải mã QR", SDK sẽ lưu ảnh thẳng vào máy. Bạn cần xin quyền:
+Mở `Info.plist` dưới dạng Source Code và thêm cấu hình sau để xin quyền lưu mã QR vào Thư viện ảnh:
 
 ```xml
 <key>NSPhotoLibraryAddUsageDescription</key>
@@ -46,28 +31,16 @@ Khi người dùng bấm "Tải mã QR", SDK sẽ lưu ảnh thẳng vào máy. 
 
 ---
 
-## 4. Hướng dẫn tích hợp (Usage)
-
-Quá trình tích hợp diễn ra theo 2 bước chính:
-1. **Phía Server (Backend):** Gọi API Tingee để tạo link thanh toán (`checkoutUrl`).
-2. **Phía Mobile (App):** Nhận `checkoutUrl` từ Backend, gọi SDK để hiển thị giao diện và lắng nghe kết quả.
+## Bắt đầu nhanh
 
 > **⚠️ LƯU Ý BẢO MẬT:** 
 > Ứng dụng Mobile **KHÔNG ĐƯỢC** lưu trữ `secretKey` hoặc tự gọi API tạo link thanh toán của Tingee. Việc tạo chữ ký (Signature) và gọi API tạo đơn hàng phải được thực hiện hoàn toàn trên Backend của bạn. Backend sau khi tạo đơn thành công sẽ trả về `checkoutUrl` cho ứng dụng Mobile.
-
-### Bước 1: Import thư viện
 
 Tại ViewController nơi bạn muốn gọi thanh toán, import SDK:
 
 ```swift
 import TingeePaySDK
-```
 
-### Bước 2: Gọi SDK hiển thị giao diện thanh toán
-
-Khi bạn đã lấy được `checkoutUrl` từ Backend của bạn, hãy sử dụng hàm `TingeePay.presentCheckout` để mở giao diện:
-
-```swift
 class CheckoutViewController: UIViewController {
 
     func openPayment(checkoutUrlString: String) {
@@ -84,15 +57,9 @@ class CheckoutViewController: UIViewController {
 }
 ```
 
-**Các tham số của `presentCheckout`:**
-- `from`: ViewController hiện tại đang dùng để đẩy màn hình SDK lên.
-- `checkoutUrl`: URL thanh toán Tingee được sinh ra từ Backend của bạn.
-- `style`: Kiểu hiển thị màn hình thanh toán. Hỗ trợ 2 kiểu:
-  - `.fullScreen`: Trải dài toàn màn hình thiết bị.
-  - `.bottomSheet`: Hiển thị dạng cửa sổ kéo từ dưới lên (Hỗ trợ 2 nấc kéo thả trên iOS 15+).
-- `delegate`: Lớp nhận các callback kết quả thanh toán.
+---
 
-### Bước 3: Lắng nghe kết quả thanh toán
+## Lắng nghe kết quả
 
 Kế thừa protocol `TingeePayCheckoutDelegate` để nhận các sự kiện:
 
@@ -103,13 +70,12 @@ extension CheckoutViewController: TingeePayCheckoutDelegate {
     func tingeePayCheckoutDidFinish(with result: TingeePaymentResult) {
         print("Trạng thái: \(result.status.rawValue)")
         print("Mã đơn hàng: \(result.orderId ?? "")")
-        print("Mã giao dịch: \(result.transactionId ?? "")")
         
         switch result.status {
         case .success:
-            print("Thanh toán thành công! Chuyển sang màn hình hoàn tất.")
+            print("Thanh toán thành công!")
         case .failed, .error:
-            print("Lỗi thanh toán: \(result.errorMessage ?? "Không rõ") (Mã lỗi: \(result.errorCode ?? ""))")
+            print("Lỗi thanh toán: \(result.errorMessage ?? "")")
         case .cancelled:
             print("Giao dịch đã bị huỷ.")
         case .expired:
@@ -133,38 +99,35 @@ extension CheckoutViewController: TingeePayCheckoutDelegate {
 
 ---
 
-## 5. Mô hình dữ liệu (Data Models)
+## Mô hình dữ liệu
 
 ### `TingeePaymentResult`
-Đối tượng được SDK trả về khi hàm `tingeePayCheckoutDidFinish` được gọi:
 
-| Thuộc tính | Kiểu dữ liệu | Mô tả |
-| :--- | :--- | :--- |
+| Thuộc tính | Kiểu | Mô tả |
+|---|---|---|
 | `status` | `TingeePaymentStatus` | Trạng thái cuối cùng của giao dịch. |
 | `orderId` | `String?` | Mã đơn hàng (Mã mà hệ thống của bạn gửi cho Tingee). |
 | `transactionId` | `String?` | Mã giao dịch phía Tingee. |
 | `errorCode` | `String?` | Mã lỗi (nếu có). |
 | `errorMessage` | `String?` | Thông báo lỗi chi tiết (nếu có). |
 
-### `TingeePaymentStatus`
-Enum đại diện cho các trạng thái giao dịch:
-- `.success`: Giao dịch thanh toán thành công.
-- `.failed`: Thanh toán thất bại.
-- `.cancelled`: Giao dịch bị huỷ bỏ.
-- `.expired`: Giao dịch hết hạn.
-- `.error`: Lỗi hệ thống.
-- `.unknown`: Trạng thái không xác định.
+> **`TingeePaymentStatus`** bao gồm: `.success`, `.failed`, `.cancelled`, `.expired`, `.error`, `.unknown`.
 
 ---
 
-## 6. Xử lý sự cố thường gặp (Troubleshooting)
+## Xử lý sự cố
 
 **1. Bấm "Tải mã QR" không có phản hồi:**
-- Cần chắc chắn bạn đã thêm key `NSPhotoLibraryAddUsageDescription` vào `Info.plist`. Lần đầu tiên bấm tải, hệ điều hành sẽ hiển thị popup xin quyền. Nếu người dùng chọn "Từ chối", họ sẽ phải vào Cài đặt (Settings) của máy để cấp lại quyền cho ứng dụng.
+- Cần chắc chắn bạn đã thêm key `NSPhotoLibraryAddUsageDescription` vào `Info.plist`. Lần đầu tiên bấm tải, hệ điều hành sẽ hiển thị popup xin quyền.
 
-**2. Làm thế nào để test trên môi trường Sandbox?**
-- Đối với SDK Mobile, môi trường Sandbox hay Production phụ thuộc hoàn toàn vào `checkoutUrl` mà bạn truyền vào `presentCheckout`. 
-- Nếu `checkoutUrl` bắt đầu bằng URL Sandbox của Tingee (vd: `https://uat-open-api.tingee.vn/...`), SDK sẽ tự hiểu và hiển thị giao diện Sandbox.
+**2. Test trên môi trường Sandbox:**
+- SDK Mobile tự động chuyển môi trường dựa vào URL. Nếu `checkoutUrl` bắt đầu bằng URL Sandbox của Tingee, SDK sẽ tự hiểu và hiển thị giao diện Sandbox.
 
 ---
-© 2026 Tingee. All rights reserved.
+
+## Xem thêm
+
+- [CHANGELOG](./CHANGELOG.md)
+- [Tài liệu Tingee Open API](https://open-api.tingee.vn)
+- [Tài liệu Tingee Developer](https://developers.tingee.vn)
+- [Trang chủ Tingee](https://tingee.vn)
